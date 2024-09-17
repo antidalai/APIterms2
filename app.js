@@ -1,19 +1,30 @@
-const express = require('express'); // loads up the express module
-const fetch = require('node-fetch'); // to make HTTP requests
-const cors = require('cors'); // to enable CORS
-const bodyParser = require('body-parser'); // to parse JSON bodies
-const app = express(); // sets instance to app
+const express = require('express');
+const fetch = require('node-fetch');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const app = express();
 
-app.use(cors()); // Enable CORS for all routes
-app.use(bodyParser.json()); // Parse JSON bodies
+// Add logging to understand if the app is starting
+console.log('Starting the server...');
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY; // Load API key from environment variables
+// Use middlewares
+app.use(cors());
+app.use(bodyParser.json());
 
+// Check if the OpenAI API key is set
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
+if (!OPENAI_API_KEY) {
+    console.error("ERROR: Missing OpenAI API key in environment variables");
+    process.exit(1); // Exit the process with status 1 if the API key is missing
+}
+
+// API route
 app.post('/api', async (req, res) => {
     try {
         const { prompt, selectedValues } = req.body;
 
-        let chatPrompt = 'Your job is to read and effectively summarize terms and conditions or terms of use documents that are given to you. Pay special attention to ' + selectedValues.join(', ') + '. Your answer should be simply worded and on multiple different lines in a bullet point format. ';
+        let chatPrompt = `Your job is to read and effectively summarize terms and conditions or terms of use documents that are given to you. Pay special attention to ${selectedValues.join(', ')}. Your answer should be simply worded and on multiple different lines in a bullet point format.`;
 
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
@@ -39,14 +50,14 @@ app.post('/api', async (req, res) => {
             res.status(response.status).json(data);
         }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error in API call:', error);
         res.status(500).json({ error: 'An error occurred on the server.' });
     }
 });
 
-const port = process.env.PORT || 4000;  // Render provides the port via an environment variable
+// Use the PORT provided by Render
+const port = process.env.PORT || 4000;
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
-
