@@ -7,7 +7,7 @@ const app = express(); // sets instance to app
 app.use(cors()); // Enable CORS for all routes
 app.use(bodyParser.json()); // Parse JSON bodies
 
-const OPENAI_API_KEY = 'API KEY GOES HERE'; // Replace with your OpenAI API key
+const OPENAI_API_KEY = OPENAI_API_KEY; // Replace with your OpenAI API key, I am trying to use the env variable here
 
 app.post('/api', async (req, res) => {
     try {
